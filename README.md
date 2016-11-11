@@ -11,6 +11,9 @@ ls -lah /etc/shadow
 lrwxrwxrwx 1 root root 37 Nov 11 08:30 /etc/shadow -> /mnt/sda1/mydata/etc/shadow
 ```
 
+The **advantage** is you can now edit `persistent` files _without_ needing to back them up!
+All changes will automatically be saved to `persistent` storage.
+
 # Requirements
 
   * TinyCore Linux
