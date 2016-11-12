@@ -23,7 +23,7 @@ All changes will automatically be saved to `persistent` storage.
 # Getting Started
 
   1. Run `./symlinktool.sh --create sda1` to backup your files to `/mnt/sda1`
-  2. Edit the `/etc/init.d/tc-restore.sh` to replace `/usr/bin/filetool.sh` with `sudo /usr/bin/symlinktool.sh`
+  2. Edit the `/etc/init.d/tc-restore.sh` to replace `/usr/bin/filetool.sh` with `/usr/bin/symlinktool.sh`
   3. Add `symlinktool.sh` to `/usr/bin`
 
 Of course, you'll need a remastered `core.gz` or `corepure64.gz` which contains the edited `tc-restore.sh` and `symlinktool.sh`
@@ -57,7 +57,9 @@ Options:
 
 # Advanced
 
-* If you don't want this change to be permanent, I suggest adding a boot code such as `restoresymlinks`, if found call `sudo /usr/bin/symlinktool.sh`, if not call `/usr/bin/filetool.sh`
+Apply the patch found in [tc-restore.sh.patch](https://github.com/aw/tinycore-symlinktool/blob/master/tc-restore.sh.patch) using `patch -p1 < tc-restore.sh.patch`
+
+This will add a new bootcode `symlinksrestore` and call `symlinktool.sh` instead of `filetool.sh`, if set in the boot command line.
 
 # Status
 
