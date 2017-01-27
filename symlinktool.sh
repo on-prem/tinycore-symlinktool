@@ -2,7 +2,7 @@
 #
 # Create and restore symlinks based on /opt/.filetool.lst
 #
-# Copyright (c) 2016 Alexander Williams, Unscramble <license@unscramble.jp>
+# Copyright (c) 2016-2017 Alexander Williams, Unscramble <license@unscramble.jp>
 #
 # MIT
 
@@ -15,8 +15,8 @@ OP="${1:-}"
 DEVICE="${2:-}"
 
 version(){
-  echo "symlinktool v0.1.0"
-  echo "Copyright (c) 2016 Alexander Williams, Unscramble <license@unscramble.jp>"
+  echo "symlinktool v0.2.0"
+  echo "Copyright (c) 2016-2017 Alexander Williams, Unscramble <license@unscramble.jp>"
   echo "License MIT"
 }
 
@@ -40,6 +40,7 @@ Options:
   -c, --create   create a backup and store the files in <device>
   -r, --restore  restore symlinks pointing to backup files in <device>
   -u, --undo     undo changes and restore the backup files from <device>
+  -s, --save     save the backup files to a git repo (git commit) in <device>
   -h, --help     show this help message and exit
   -v, --version  show the application version and exit
 EOF
@@ -100,6 +101,15 @@ undo_symlinks() {
   fi
 }
 
+save_symlinks() {
+  cd /mnt/${DEVICE}/${RESTORE_DIR}
+    [ -d ".git" ] || git init
+
+    # store the changes in git
+    git add .
+    git commit --no-gpg-sign -aqm "Saving backup files changes to Git" >/dev/null 2>&1|| true
+}
+
 cd /
 
 case "$OP" in
@@ -125,6 +135,14 @@ case "$OP" in
     echo -n "Undoing changes and restoring files from /mnt/${DEVICE}/${RESTORE_DIR}... "
     mount_device && \
     undo_symlinks || exit 1
+    echo -e "Done."
+    ;;
+  -s|--save)
+    check_root
+    check_device
+    echo -n "Saving file changes to Git... "
+    mount_device && \
+    save_symlinks || exit 1
     echo -e "Done."
     ;;
   -h|--help)
