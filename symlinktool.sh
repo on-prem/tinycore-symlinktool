@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2016-2017 Alexander Williams, Unscramble <license@unscramble.jp>
 #
-# MIT
+# MIT License
 
 set -u
 set -e
@@ -15,7 +15,7 @@ OP="${1:-}"
 DEVICE="${2:-}"
 
 version(){
-  echo "symlinktool v0.2.0"
+  echo "symlinktool v0.3.0"
   echo "Copyright (c) 2016-2017 Alexander Williams, Unscramble <license@unscramble.jp>"
   echo "License MIT"
 }
@@ -40,7 +40,6 @@ Options:
   -c, --create   create a backup and store the files in <device>
   -r, --restore  restore symlinks pointing to backup files in <device>
   -u, --undo     undo changes and restore the backup files from <device>
-  -s, --save     save the backup files to a git repo (git commit) in <device>
   -h, --help     show this help message and exit
   -v, --version  show the application version and exit
 EOF
@@ -103,11 +102,17 @@ undo_symlinks() {
 
 save_symlinks() {
   cd /mnt/${DEVICE}/${RESTORE_DIR}
-    [ -d ".git" ] || git init
+    if [ ! -d ".git" ]; then
+      git init
+      git config user.email "git@appliance.local"
+      git config color.ui false
+      echo "/var/log" > .gitignore
+    fi
 
     # store the changes in git
+    parent_cmd="$(/bin/ps -o comm -o pid | grep " $PPID$" | awk '{ print $1 }')"
     git add .
-    git commit --no-gpg-sign -aqm "Saving backup files changes to Git" >/dev/null 2>&1|| true
+    git commit --no-gpg-sign -aqm "Saving backup files changes: $parent_cmd" || true
 }
 
 cd /
@@ -119,6 +124,7 @@ case "$OP" in
     echo -n "Creating backup up files in /mnt/${DEVICE}/${RESTORE_DIR}... "
     mount_device && \
     create_symlinks || exit 1
+    [ -z `which git` ] || save_symlinks || exit 1
     echo -e "Done."
     ;;
   -r|--restore)
@@ -135,14 +141,6 @@ case "$OP" in
     echo -n "Undoing changes and restoring files from /mnt/${DEVICE}/${RESTORE_DIR}... "
     mount_device && \
     undo_symlinks || exit 1
-    echo -e "Done."
-    ;;
-  -s|--save)
-    check_root
-    check_device
-    echo -n "Saving file changes to Git... "
-    mount_device && \
-    save_symlinks || exit 1
     echo -e "Done."
     ;;
   -h|--help)

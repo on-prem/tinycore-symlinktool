@@ -42,7 +42,6 @@ Options:
   -c, --create   create a backup and store the files in <device>
   -r, --restore  restore symlinks pointing to backup files in <device>
   -u, --undo     undo changes and restore the backup files from <device>
-  -s, --save     save the backup files to a git repo (git commit) in <device>
   -h, --help     show this help message and exit
   -v, --version  show the application version and exit
 ```
@@ -55,7 +54,7 @@ Options:
 * Generates a `/mnt/$DEVICE/mydata.lst` file which contains the list of files which were backed up
 * Doesn't create symlinks to directories, only files
 * On boot, it replaces the original files and creates symlinks to the backed up files in `/mnt/sda1`
-* After changing a file, `--save` can be used to track, version and even revert the changes
+* After changing a file, `--create` can be used to track, version and even revert the changes
 
 # Advanced
 
