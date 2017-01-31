@@ -15,7 +15,7 @@ OP="${1:-}"
 DEVICE="${2:-}"
 
 version(){
-  echo "symlinktool v0.3.0"
+  echo "symlinktool v0.4.0"
   echo "Copyright (c) 2016-2017 Alexander Williams, Unscramble <license@unscramble.jp>"
   echo "License MIT"
 }
@@ -77,7 +77,6 @@ restore_symlinks() {
     # create symlinks
     for target in `cat /mnt/${DEVICE}/${RESTORE_DIR}.lst | grep -v "/$"`; do
       if [ -e "/mnt/${DEVICE}/${RESTORE_DIR}/${target}" ]; then
-        rm -f $target
         ln -snf /mnt/${DEVICE}/${RESTORE_DIR}/${target} $target
       fi
     done
