@@ -15,7 +15,7 @@ OP="${1:-}"
 DEVICE="${2:-}"
 
 version(){
-  echo "symlinktool v0.4.0"
+  echo "symlinktool v0.5.0"
   echo "Copyright (c) 2016-2017 Alexander Williams, Unscramble <license@unscramble.jp>"
   echo "License MIT"
 }
@@ -56,14 +56,14 @@ check_device() {
 mount_device() {
   if ! grep -qw "/dev/${DEVICE} /mnt/${DEVICE}" /proc/mounts; then
     mkdir -p /mnt/${DEVICE} && \
-    /bin/mount /dev/${DEVICE} /mnt/${DEVICE} || return 1
+    /bin/mount /dev/${DEVICE} /mnt/${DEVICE} >/tmp/symlinktool_mount.msg 2>&1 || return 1
   fi
 
   mkdir -p /mnt/${DEVICE}/${RESTORE_DIR} || return 1
 }
 
 create_symlinks() {
-  /bin/tar -C / -T /opt/.filetool.lst -X /opt/.xfiletool.lst -cphf - | /bin/tar -C /mnt/${DEVICE}/${RESTORE_DIR}/ -xvf - > /mnt/${DEVICE}/${RESTORE_DIR}.lst
+  /bin/tar -C / -T /opt/.filetool.lst -X /opt/.xfiletool.lst -cphf - 2>/tmp/symlinktool_tar.msg | /bin/tar -C /mnt/${DEVICE}/${RESTORE_DIR}/ -xvf - > /mnt/${DEVICE}/${RESTORE_DIR}.lst
   sync
 }
 
@@ -80,6 +80,9 @@ restore_symlinks() {
         ln -snf /mnt/${DEVICE}/${RESTORE_DIR}/${target} $target
       fi
     done
+  else
+    # restore the original backup if there's no existing backup
+    /usr/bin/filetool.sh -r "$DEVICE" >/tmp/symlinktool_original.msg 2>&1
   fi
 }
 
